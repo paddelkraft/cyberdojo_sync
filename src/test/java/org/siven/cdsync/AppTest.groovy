@@ -22,12 +22,7 @@ public class AppTest
 	
 	
 	@Test
-	public void getAllFiles(){
-		cds.getFiles();
-	}
-	
-	@Test
-	public void uploadFiles()
+	public void uploadWithNewAndMissingFiles()
 	{
 		File file = new File(syncDir+"test.txt")
 		file.write("Test innehåll")

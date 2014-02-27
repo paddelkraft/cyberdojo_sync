@@ -11,7 +11,7 @@ public class CyberDojoSync {
 	}
 
 	public CyberDojoSync(String syncDir){
-			cyberDojo(syncDir)
+		cyberDojo(syncDir)
 	}
 
 	public CyberDojoSync(){
@@ -19,26 +19,26 @@ public class CyberDojoSync {
 		File urlFile = localFs.getFile(".cyber-dojo")
 		if (!urlFile.exists()){
 			createUrlFile()
-		} 
+		}
 		cyberDojo()
 	}
-	
+
 	public void createUrlFile(){
 		println "Could not find .cyber-dojo file containing a link to the kata to sync "
 		print "do you want to create one now? (y/n):"
-		if("yY".contains(CommandLine.input.charAt(0))){
+		if("yY".contains(CommandLine.input.substring(0,0))){
 			print "What kata url do you want to sync?:"
 			new LocalFileSystem().writeToFile( ".cyber-dojo"
-										 	 , CommandLine.input)
-		} 
+					, CommandLine.input)
+		}
 	}
-	
+
 	public void downloadFile(int index){
 		cyberDojo.downloadFile(index)
 	}
 
 	public void getFiles(){
-		
+
 		cyberDojo.downloadFiles();
 	}
 
@@ -57,6 +57,26 @@ public class CyberDojoSync {
 		cyberDojo.downloadFile("output")
 	}
 
+	public void run(){
+		String command = "get"
+		while(true){
+			print "command:>"
+			def input = CommandLine.input
+			if(!input.equals("")) command = input
+			println "$command"
+			if(command=="get"){
+				getFiles();
+			} else if(command=="test"){
+				test();
+			} else if (command=="quit"){
+				exit()
+				break
+			}else{
+				help()
+			}
+		}
+	}
+	
 	public void exit(){
 		cyberDojo.done()
 	}
@@ -67,18 +87,18 @@ public class CyberDojoSync {
 
 	private cyberDojo(String syncDir) {
 		cyberDojo = Factory.getCyberDojo(Factory.getFileSystem(syncDir))
-		
-	}
-	
-	private void cyberDojo(){
-		cyberDojo = Factory.getCyberDojo()
-		
+
 	}
 
-	
+	private void cyberDojo(){
+		cyberDojo = Factory.getCyberDojo()
+
+	}
+
+
 	public static void main (String... args){
 		if(args.length==0){
-			
+
 			help()
 			return
 		}
@@ -91,7 +111,10 @@ public class CyberDojoSync {
 				CyberDojoSync cds = new CyberDojoSync()
 				cds.test();
 				cds.exit();
-			} else{
+			} else if (args[0]=="start"){
+				CyberDojoSync cds = new CyberDojoSync()
+				cds.run()
+			}else{
 				help()
 			}
 		}catch (Exception e){
@@ -104,5 +127,7 @@ public class CyberDojoSync {
 		println "Save url to kata in a file called .cyber-dojo"
 		println "CyberDojoSync get  //Fetches the files from kata"
 		println "CyberDojoSync test //Uploads files runs tests and gets the output"
+		println "CyberDojoSync start //Start a contioous session"
+		println "quit //exits continous session"
 	}
 }

@@ -13,7 +13,7 @@ public class Kata implements CdKata {
 
 	final By NEW_FILE_OK = By.id("new_file_ok")
 
-	final By TEST = By.id("test")
+	final By TEST = By.id("test_button")
 
 	private WebDriver driver;
 

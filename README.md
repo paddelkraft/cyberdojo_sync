@@ -35,6 +35,6 @@ Commands accepted at the prompt are
 * get
 * test
 * quit
-pressing enter at the prompt without writing a command repeats last command 
+* pressing enter at the prompt without writing a command repeats last command 
 
   

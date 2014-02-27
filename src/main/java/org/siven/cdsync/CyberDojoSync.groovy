@@ -6,33 +6,39 @@ public class CyberDojoSync {
 
 	private CyberDojo cyberDojo;
 
-	public CyberDojoSync( String url, String syncDir){
-		cyberDojo(url, syncDir)
+	public CyberDojoSync(String syncDir, String url){
+		cyberDojo(syncDir,url)
 	}
 
 	public CyberDojoSync(String syncDir){
-		File urlFile =new File(syncDir+".cyber-dojo")
-		if (urlFile.exists()){
-			String url = new File(syncDir+".cyber-dojo").text
-			cyberDojo(url,syncDir)
-		} else {
-			throw new Exception("No .cyber-dojo file found")
-		}
+			cyberDojo(syncDir)
 	}
 
 	public CyberDojoSync(){
-		this("./");
+		def localFs = new LocalFileSystem()
+		File urlFile = localFs.getFile(".cyber-dojo")
+		if (!urlFile.exists()){
+			createUrlFile()
+		} 
+		cyberDojo()
 	}
-
-	public void setPath(String path){
-		cyberDojo.outputPath = path
+	
+	public void createUrlFile(){
+		println "Could not find .cyber-dojo file containing a link to the kata to sync "
+		print "do you want to create one now? (y/n):"
+		if("yY".contains(CommandLine.input.charAt(0))){
+			print "What kata url do you want to sync?:"
+			new LocalFileSystem().writeToFile( ".cyber-dojo"
+										 	 , CommandLine.input)
+		} 
 	}
-
+	
 	public void downloadFile(int index){
 		cyberDojo.downloadFile(index)
 	}
 
 	public void getFiles(){
+		
 		cyberDojo.downloadFiles();
 	}
 
@@ -41,6 +47,11 @@ public class CyberDojoSync {
 	}
 
 	public void test(){
+		if(cyberDojo.localFs.visibleFileCount()==0){
+			println "There are no files available locally to test"
+			println "run \"CyberDojoSync get\" to fetch the files in the kata"
+			return
+		}
 		cyberDojo.uploadFiles();
 		cyberDojo.runTests()
 		cyberDojo.downloadFile("output")
@@ -50,18 +61,25 @@ public class CyberDojoSync {
 		cyberDojo.done()
 	}
 
-	private void cyberDojo(String url, String syncDir){
-		cyberDojo = new CyberDojo()
-		cyberDojo.setOutputPath(syncDir)
-		cyberDojo.getUrl(url);
+	private void cyberDojo(String syncDir, String url){
+		cyberDojo = Factory.getCyberDojo(Factory.getFileSystem(syncDir), Factory.getKata(url))
 	}
 
+	private cyberDojo(String syncDir) {
+		cyberDojo = Factory.getCyberDojo(Factory.getFileSystem(syncDir))
+		
+	}
+	
+	private void cyberDojo(){
+		cyberDojo = Factory.getCyberDojo()
+		
+	}
+
+	
 	public static void main (String... args){
 		if(args.length==0){
-			println "Cyber-Dojo_Sync"
-			println "Save url to kata in a file called .cyber-dojo"
-			println "CyberDojoSync get  //Fetches the files from kata"
-			println "CyberDojoSync test //Uploads files runs tests and gets the output"
+			
+			help()
 			return
 		}
 		try{
@@ -74,13 +92,17 @@ public class CyberDojoSync {
 				cds.test();
 				cds.exit();
 			} else{
-				println "Cyber-Dojo_Sync"
-				println "Save url to kata in a file called .cyber-dojo"
-				println "CyberDojoSync get  //Fetches the files from kata"
-				println "CyberDojoSync test //Uploads files runs tests and gets the output"
+				help()
 			}
 		}catch (Exception e){
 			println e.message
 		}
+	}
+
+	private static help() {
+		println "Cyber-Dojo_Sync"
+		println "Save url to kata in a file called .cyber-dojo"
+		println "CyberDojoSync get  //Fetches the files from kata"
+		println "CyberDojoSync test //Uploads files runs tests and gets the output"
 	}
 }

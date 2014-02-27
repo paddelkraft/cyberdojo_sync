@@ -4,22 +4,30 @@ public class CyberDojo {
 
 	
 
-	private Kata kata;
-	private outputPath = "./"
-
-	public CyberDojo() {
-		this.kata = new Kata ()
+	private CdKata kata;
+	private FileSystem localFs
+	
+	public CyberDojo(){
+//		this(LocalFileSystem.CURRENT_DIR)
 	}
-
-	public void setOutputPath(String output){
-		this.outputPath = output
-	}
-
-	public void getUrl(String url){
-		println "Open "+url
-		kata.url = url;
-	}
-
+	
+	
+//	public CyberDojo(String outputPath) {
+//		localFs = new LocalFileSystem(outputPath)
+//		File urlFile = localFs.getFile(".cyber-dojo")
+//		if (urlFile.exists()){
+//			this.kata = new Kata(urlFile.text)
+//		} else {
+//			throw new Exception("No .cyber-dojo file found")
+//		}
+//	}
+	
+//	public CyberDojo(String outputPath, String url) {
+//		this(outputPath)
+//		this.url = url
+//		
+//	}
+//	
 	public void downloadFiles(){
 		kata.fileNames.each {
 			downloadFile(it)
@@ -27,14 +35,15 @@ public class CyberDojo {
 	}
 
 	public void downloadFile(String fileName){
-		writeToLocalFile(fileName, kata.fileContent(fileName))
+		println "DownLoad " +fileName 
+		localFs.writeToFile(fileName, kata.fileContent(fileName))
 	}
 
 	public void uploadFiles(){
 		removeMissingFiles()
-		new File(outputPath).eachFile() {
-		if(!hiddenFile(it.name))
-			kata.updateFile(it.name, readLocalFile(it.name))
+		localFs.getFiles().each {
+		if(!localFs.isHiddenFile(it))
+			kata.updateFile(it, localFs.readFile(it))
 		}
 	}
 
@@ -46,31 +55,18 @@ public class CyberDojo {
 		kata.done()
 	}
 	
-	//Local file
-	private boolean hiddenFile(String fileName){
-		fileName.charAt(0)=='.'
-	}
-
+	
 	private void removeMissingFiles(){
 		kata.fileNames.each {
-			if(!localFileExists(it)){
-				kata.deleteWebFile(it)
+			if(!localFs.fileExists(it)){
+				kata.deleteFile(it)
 			}
 		}
 	}
 
-	private void writeToLocalFile(String fileName, String content) {
-		new File(outputPath+fileName).write(content)
+	public FileSystem getLocalFs(){
+		localFs
 	}
-
-	private String readLocalFile(String fileName){
-		new File(outputPath+fileName).text
-	}
-
-	private boolean localFileExists(String fileName){
-		new File(outputPath+fileName).exists()
-	}
-
 
 	
 

@@ -4,7 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
-public class Kata {
+public class Kata implements CdKata {
 	final By FILES_LIST = By.xpath("//div[@id='filename_list']/div");
 
 	final By NEW = By.id("new")
@@ -20,20 +20,38 @@ public class Kata {
 	Kata(){
 		this. driver = new FirefoxDriver()
 	}
+	
+	Kata(String url){
+		this()
+		this.url = url
+	}
+	
 
+	/* (non-Javadoc)
+	 * @see org.siven.cdsync.CdKata#setUrl(java.lang.String)
+	 */
 	void setUrl(String url){
 		driver.get(url)
 	}
 
+	/* (non-Javadoc)
+	 * @see org.siven.cdsync.CdKata#test()
+	 */
 	void test(){
 		println "RunTests"
 		driver.findElement(TEST).click()
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.siven.cdsync.CdKata#done()
+	 */
 	void done(){
 		driver.quit()
 	}
 
+	/* (non-Javadoc)
+	 * @see org.siven.cdsync.CdKata#getFileNames()
+	 */
 	List getFileNames(){
 		List fileNames = []
 		driver.findElements(FILES_LIST).each {element->
@@ -42,13 +60,16 @@ public class Kata {
 		return fileNames
 	}
 
+	/* (non-Javadoc)
+	 * @see org.siven.cdsync.CdKata#fileContent(java.lang.String)
+	 */
 	String fileContent(String fileName) {
 		selectFile(fileName)
 		driver.findElement(contentLocator(fileName)).getAttribute("value")
 
 	}
 
-	private void deleteWebFile(String fileName){
+	public void deleteFile(String fileName){
 		selectFile(fileName)
 		driver.findElement(By.id("delete")).click()
 		driver.findElement(By.xpath("//span[text()[contains(.,'ok')]]")).click()
@@ -67,7 +88,7 @@ public class Kata {
 		println "file Created " + fileName
 	}
 
-	private updateFile(String fileName, String content) {
+	public void  updateFile(String fileName, String content) {
 		if(webFileExist(fileName)){
 			selectFile(fileName)
 		}else{
